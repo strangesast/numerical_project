@@ -1,4 +1,5 @@
 from __future__ import division
+"""
 from matplotlib import pyplot as plt
 
 # Part I
@@ -43,3 +44,36 @@ fig.savefig('part1.png', bbox_inches='tight')
 # Part II
 
 fig.savefig('part2.png', bbox_inches='tight')
+
+# Part III: Bisection method
+
+"""
+
+def bisection(f, interval, good_enough, max_iters=100):
+    a = interval[0]
+    b = interval[1]
+
+    i = 0
+    while i < max_iters:
+        fa = f(a) # positive
+        fb = f(b) # negative
+
+        c = (a + b)/2
+        fc = f(c)
+
+        if abs(fc) < good_enough:
+            yield c
+            break
+        elif 0 < (fa/abs(fa))*fc:
+            a = c
+        else:
+            b = c
+
+        i += 1
+        yield (a, b)
+
+
+g = bisection(lambda x: 2-x, [1.2, 2.25], 0.0001)
+
+while True:
+    print(next(g))
