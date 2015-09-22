@@ -29,13 +29,16 @@ def bisection(f, a, b, thr=0.001, iters=100):
     yield root
 
 
-g = bisection(lambda x: 2 - x, -0.5, 2.1, 0.0001)
+# v**2 + 20/v**2 = 20.5
+f = lambda v: v**2 + 20/v**2 - 20.5
+g = bisection(f, 0.1, 2, 1*10**(-6))
 
 walk = [x for x in g]
+walkf = [f(x) for x in walk]
+print(walk)
+print(walkf)
 
-if not walk[-1] == None:
-    print(walk[-1])
-
+"""
 
 def newtons(f, fprime, x0, thr=0.001, iters=100):
 
@@ -96,3 +99,4 @@ g = secant(lambda x: (x-2)**2 - 1, 0, 2)
 walk = [x for x in g]
 
 print(walk[-1])
+"""
