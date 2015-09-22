@@ -29,20 +29,11 @@ def bisection(f, a, b, thr=0.001, iters=100):
     yield root
 
 
-# v**2 + 20/v**2 = 20.5
-f = lambda v: v**2 + 20/v**2 - 20.5
-g = bisection(f, 0.1, 2, 1*10**(-6))
-
-walk = [x for x in g]
-walkf = [f(x) for x in walk]
-print(walk)
-print(walkf)
-
-"""
-
 def newtons(f, fprime, x0, thr=0.001, iters=100):
 
     root = None
+
+    yield x0
 
     for each in range(iters):
         y = f(x0)
@@ -63,25 +54,17 @@ def newtons(f, fprime, x0, thr=0.001, iters=100):
     yield root
 
 
-g = newtons(lambda x: (x-2)**2 - 1, lambda x: 2*(x-2), 0.25)
-
-
-walk = [x for x in g]
-if not walk[-1] == None:
-    print(walk[-1])
-
-
 def secant(f, x0, x1, thr=0.001, iters=100, sm=0.0001):
 
     root = None
 
+    yield x0
+
+    yield x1
+
     for each in range(iters):
 
-        if abs(f(x1) - f(x0)) < sm:
-            # too small
-            break
-
-        x2 = x1 - f(x1)*(x1 - x0) / (f(x1) - f(x0))
+        x2 = x1 - f(x1 if x1 > sm else sm)*(x1 - x0) / (f(x1 if x1 > sm else sm) - f(x0 if x0 > sm else sm))
 
         if abs(f(x2)) < thr:
             root = x2
@@ -93,10 +76,3 @@ def secant(f, x0, x1, thr=0.001, iters=100, sm=0.0001):
         yield x2
 
     yield root
-
-g = secant(lambda x: (x-2)**2 - 1, 0, 2)
-
-walk = [x for x in g]
-
-print(walk[-1])
-"""
