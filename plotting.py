@@ -27,7 +27,8 @@ D = lambda v: D1(v) + D2(v)
 y = map(D, x)
 ax.plot(x, y, label='combined drag')
 
-fig.savefig('/home/samuel/Downloads/numerical/part1a.png', bbox_inches='tight')
+filepath = '/home/samuel/Downloads/numerical/part1a.png'
+fig.savefig(filepath, bbox_inches='tight')
 
 y3 = map(lambda v: 20.5, x)
 ax.plot(x, y3, label='engine force')
@@ -43,10 +44,10 @@ ax.legend(
   ncol = 3
 )
 
-fig.savefig('/home/samuel/Downloads/numerical/part1b.png', bbox_inches='tight')
+filepath = '/home/samuel/Downloads/numerical/part1b.png'
+fig.savefig(filepath, bbox_inches='tight')
 
 
-"""
 # Part III: Bisection method
 from methods import bisection
 
@@ -82,7 +83,9 @@ plt.ylabel('Nondimensional Force')
 plt.axis([0, xlim, 0, ylim])
 
 # 3a.
-fig.savefig('/home/samuel/Downloads/numerical/part3a.png', bbox_inches='tight')
+
+filepath = '/home/samuel/Downloads/numerical/part3a.png'
+fig.savefig(filepath, bbox_inches='tight')
 
 # 3b.
 with open('/home/samuel/Downloads/numerical/part3b.csv', 'w') as f:
@@ -123,7 +126,8 @@ plt.ylabel('Nondimensional Force')
 plt.axis([0, xlim, 0, ylim])
 
 # 4a.
-fig.savefig('/home/samuel/Downloads/numerical/part4a.png', bbox_inches='tight')
+filepath = '/home/samuel/Downloads/numerical/part4a.png'
+fig.savefig(filepath, bbox_inches='tight')
 
 # 4b.
 with open('/home/samuel/Downloads/numerical/part4b.csv', 'w') as f:
@@ -152,10 +156,10 @@ ax.set_yscale('log')
 plt.axis([0, xlim, 0, max(max(walk2f), max(walk1f))])
 plt.title("Newton's Method Root Calculation - Log Scale")
 plt.ylabel('Natural Log of Nondimensional Force')
-fig.savefig('/home/samuel/Downloads/numerical/part4c.png', bbox_inches='tight')
+filepath = '/home/samuel/Downloads/numerical/part4c.png'
+fig.savefig(filepath, bbox_inches='tight')
 
 
-"""
 # Part V
 from methods import secant
 f = lambda v: v**2 + 20*v**(-2) - 20.5
@@ -181,10 +185,12 @@ plt.axis([0, xlim, 0, ylim])
 plt.title("Secant Method Root Calculation")
 plt.xlabel('Velocity')
 plt.ylabel('Nondimensional Force')
-fig.savefig('/home/samuel/Downloads/numerical/part5a.png', bbox_inches='tight')
+filepath = '/home/samuel/Downloads/numerical/part5a.png'
+fig.savefig(filepath, bbox_inches='tight')
 
 # 5b
-with open('/home/samuel/Downloads/numerical/part5b.csv', 'w') as f:
+filepath = '/home/samuel/Downloads/numerical/part5b.csv'
+with open(filepath, 'w') as f:
     one = zip(walk1, walk1f)
     two = zip(walk2, walk2f)
     trim = max(len(one), len(two))
@@ -209,4 +215,5 @@ ax.set_yscale('log')
 plt.axis([0, xlim, 0, max(max(walk2f), max(walk1f))])
 plt.title("Secant Method Root Calculation - Log Scale")
 plt.ylabel('Natural Log of Nondimensional Force')
-fig.savefig('/home/samuel/Downloads/numerical/part5c.png', bbox_inches='tight')
+filepath = '/home/samuel/Downloads/numerical/part5c.png'
+fig.savefig(filepath, bbox_inches='tight')
