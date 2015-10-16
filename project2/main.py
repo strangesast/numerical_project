@@ -158,4 +158,3 @@ for key in by_shape:
     print(key)
     print(by_shape[key])
     print(sum([a for a, b in by_shape[key]])/sum([b for a, b in by_shape[key]]))
-
