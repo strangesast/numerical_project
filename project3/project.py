@@ -22,23 +22,24 @@ def newtons(x, y, alt_x):
     ys = np.zeros(len(alt_x))
     for i, xi in enumerate(alt_x):
         result = 0
-        if i == 0:
-            symbolic_result = 0
-            symbol_x = Symbol('x')
+        #if i == 0:
+        #    symbolic_result = 0
+        #    symbol_x = Symbol('x')
         for ic, c in enumerate(coeffs):
             cs = c
-            if i==0: symbolic = c
+            #if i==0: symbolic = c
             for j in range(ic):
                 cs*=(xi - x[j])
-                if i==0: symbolic*=(symbol_x - x[j])
+                #if i==0: symbolic*=(symbol_x - x[j])
             result += cs
-            if i==0: symbolic_result += symbolic
+            #if i==0: symbolic_result += symbolic
         ys[i] = result
-        if i==0:
-            print(simplify(symbolic_result))
-            print(len(x))
+        #if i==0:
+            #print(simplify(symbolic_result))
+            #print(len(x))
 
     return alt_x, ys
+
 
 def lagrange(x, y, alt_x):
     ys = np.zeros(len(alt_x))
@@ -133,7 +134,9 @@ def plot_spline_approximation(x, y, f, folder_name):
     sx, sy = spline(x, y, incr=0.01) 
     plot_format_save([x, sx], [y, sy], ['Original', 'Spline'], ['o', None], 'Spline Approximation', folder_name)
 
-    diff = [b-a for a, b in zip(map(f, sx), sy)]
+    diff = f(np.array(sx)) - np.array(sy)
+    print(f(sx[0]))
+    print(sy[0])
     plot_format_save([sx], [diff], [None], [None], 'Spline Error', folder_name)
 
 
@@ -161,12 +164,25 @@ y = np.array([0.3508, 0.1082, -0.1411, -0.3817, -0.5985, -0.7781, -0.9093, -0.98
      0.6816, 0.8415, 0.9490, 0.9975, 0.9840, 0.9093, 0.7781, 0.5985, 0.3817,\
      0.1411, -0.1082, -0.3508])
 
+#plot_format_save([x], [y], [None], ['o'], 'Track Position', 'first')
+
+new_x = np.arange(-3.5, 3.5+0.11, 0.11)
+new_y = np.sin(new_x)
+
+#plot_approximations_of(new_x, new_y, np.sin, 'higher')
+
 f = lambda x: np.sin(x)
-plot_approximations_of(x, y, f, 'first')
+#plot_approximations_of(x, y, f, 'first')
+#plot_spline_approximation(x, y, f, 'spline_2')
 
 x = np.arange(-3.5, 3.5+0.5, 0.5)
 y = np.array(map(lambda a: (1+25*a**2)**-1, x))
 
-plot_approximations_of(x, y, f, 'second')
+#plot_approximations_of(x, y, f, 'second')
 
-plot_spline_approximation(x, y, f, 'spline')
+f = lambda x: (1+25*x**2)**-1
+#plot_spline_approximation(x, y, f, 'spline')
+
+new_x = np.arange(-3.5, 3.5+0.20, 0.20)
+new_y = f(new_x)
+plot_approximations_of(new_x, new_y, f, 'higher_2')
