@@ -101,10 +101,10 @@ dates = [each[header.index('time')] for each in data]
 temps = [each[header.index('temperature')] for each in data]
 winds = [each[header.index('wind speed')] if each[2] is not None else 0 for each in data]
 
-cnt = 0
-for row in data:
-    if row[2] is None:
-        cnt += 1
+#cnt = 0
+#for row in data:
+#    if row[2] is None:
+#        cnt += 1
 
 def datetime_to_sse(dt):
     return (dt - datetime.datetime(1970, 1, 1)).total_seconds()
@@ -117,29 +117,33 @@ x = map(datetime_to_sse, x)
 nx, ny = spline(x, y, incr=10000*60)
 nx = map(int, nx)
 
-offtime = datetime.timedelta(0)
-threshold = 0 #mph
-startLow = None
+from operator import itemgetter
+minspeed = 10
+maxspeed = 40
+startTime = None
+total_diff = 0
+data.sort(key=itemgetter(0))
 
-for each in data:
-    try:
-        each[2] = float(each[2])
-    except:
-        each[2] = float(0)
-
-    if each[2] > threshold:
-        if startLow == None:
-            startLow = each[0]
+for i, each in enumerate(data):
+    dt = each[0]
+    ws = each[2]
+    gs = each[3]
+    if ws is None:
+        t = 0
+    elif gs is None:
+        t = ws
     else:
-        if startLow is not None:
-            diff = startLow - each[0]
-            offtime += diff
-            pass
-        startLow = None
+        t = (ws + gs)/2
 
-print(offtime)
+    if minspeed < t < maxspeed and i < len(data)-1:
+        if startTime is None:
+            startTime = dt
+    elif startTime is not None:
+        diff = dt - startTime
+        total_diff += diff.total_seconds()
+        startTime = None
 
-max_date = reduce(lambda a, b: a if a > b else b, [x[0] for x in data])
-min_date = reduce(lambda a, b: a if a < b else b, [x[0] for x in data])
-
-print(max_date - min_date)
+mindate, maxdate = (data[0][0], data[-1][0])
+diff = maxdate - mindate
+seconds = diff.total_seconds()
+print(total_diff / seconds * 100)
