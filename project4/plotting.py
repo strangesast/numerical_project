@@ -1,7 +1,7 @@
 from __future__ import division
 import os
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import integrate, interpolate
@@ -40,8 +40,7 @@ def part_one(data):
     wind_averaged_axis = afig.add_subplot(111)
     
     ########################################
-    # plots
-    temp_axis.plot(dates, temps)
+    # plots temp_axis.plot(dates, temps)
     wind_axis.plot(dates, winds)
     wind_averaged_axis.plot(dates, awinds)
     # plot gust repr
@@ -111,22 +110,46 @@ powers = []
 for wind in winds:
     powers.append(interpolated_dict[wind])
 
+# use 'not None' points to build spline function
+#clean = [(a, b) for a, b in zip(powers, deltas) if a is not None and b is not None]
+#powers, deltas = zip(*clean)
+
 fig = plt.figure(figsize=(16, 4))
 ax = fig.add_subplot(111)
-ax.plot(dates, powers)
-ax.set_ylim(0)
+ax.plot(deltas, powers, 'bo')
+#ax.set_ylim(0)
 ax.set_ylabel('Power (Watts)')
-fig.savefig('/home/samuel/Downloads/spline.png', bbox_inches='tight')
+#fig.savefig('/home/samuel/Downloads/spline.png', bbox_inches='tight')
 
-clean = [(a, b) for a, b in zip(powers, deltas) if a is not None and b is not None]
-powers, deltas = zip(*clean)
-total_power = integrate.simps(powers, deltas)
-print(total_power)
 
-date_diff = max(dates)-min(dates)
+# x, y data
+cpowers, cdeltas = zip(*[(a, b) for a, b in zip(powers, deltas) if a is not None and b is not None])
 
-tck = interpolate.splrep(powers, deltas, s=0, k=2)
-xnew = np.arange(0, max(deltas))
+# interpolate
+tck = interpolate.splrep(cdeltas, cpowers, s=0, k=2)
+nones = []
+for xi, yi in zip(deltas, powers):
+    if yi is None:
+        nones.append(xi)
+
+print(nones)
+mpowers = interpolate.splev(nones, tck, der=0)
+ax.plot(nones, mpowers, 'ro')
+
+
+# ident Nones, fill in
+
+xnew = np.arange(0, max(deltas), 600)
 ynew = interpolate.splev(xnew, tck, der=0)
+ax.plot(xnew, ynew, 'g')
 
-total_power = integrate.simps(ynew, xnew)
+#fig = plt.figure(figsize=(16, 4))
+#powers, deltas = zip(*clean)
+
+#date_diff = max(dates)-min(dates)
+#
+##tck = interpolate.splrep(powers, deltas, s=0, k=2)
+#xnew = np.arange(0, max(deltas))
+#ynew = interpolate.splev(xnew, tck, der=0)
+#
+#total_power = integrate.simps(ynew, xnew)

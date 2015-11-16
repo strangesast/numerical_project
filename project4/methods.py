@@ -51,7 +51,7 @@ def interpolate_wind_power_table(filepath, xnew):
             data.append(map(int, row))
     
     x, y = zip(*data)
-    tc = interpolate.splrep(x, y, s=0, k=2)
+    tck = interpolate.splrep(x, y, s=0, k=2)
     ynew = interpolate.splev(xnew, tck, der=0)
 
     return map(lambda x: round(x, 4), xnew), map(lambda x: round(x, 4), ynew)
