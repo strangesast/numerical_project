@@ -4,11 +4,12 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy import integrate, interpolate
 from matplotlib.dates import YearLocator, MonthLocator, DayLocator, DateFormatter
 import matplotlib.gridspec as gridspec
 import datetime
 
-from methods import parse_data_file, spline
+from methods import parse_data_file, interpolate_wind_power_table
 
 # data file location
 cpath = os.path.dirname(os.path.realpath(__file__))
@@ -16,6 +17,7 @@ data_fname = 'wind_data.csv'
 data_fpath = os.path.join(cpath, data_fname)
 header = ['time', 'temperature', 'wind speed', 'gust', 'direction']
 data = parse_data_file(data_fpath)
+
 
 def part_one(data):
     ########################################
@@ -92,58 +94,39 @@ def part_one(data):
     fig.savefig(out_fpath, bbox_inches='tight')
     print('saving figure to "{}"'.format(aout_fpath))
     afig.savefig(aout_fpath, bbox_inches='tight')
-
     print('done')
 
-#part_one(data)
-
+deltas = [each[4] for each in data]
 dates = [each[header.index('time')] for each in data]
 temps = [each[header.index('temperature')] for each in data]
-winds = [each[header.index('wind speed')] if each[2] is not None else 0 for each in data]
+winds = [each[header.index('wind speed')] for each in data]
 
-#cnt = 0
-#for row in data:
-#    if row[2] is None:
-#        cnt += 1
+xnew = np.arange(0, 50, 0.1)
+xnew, ynew = interpolate_wind_power_table('power_wind_table.csv', xnew)
 
-def datetime_to_sse(dt):
-    return (dt - datetime.datetime(1970, 1, 1)).total_seconds()
+interpolated_dict = dict(zip(xnew, ynew))
+interpolated_dict[None] = None
 
-x, y = zip(*[(a[0], a[2]) for a in data if None not in [a[0],a[2]]])
+powers = []
+for wind in winds:
+    powers.append(interpolated_dict[wind])
 
-x = map(datetime_to_sse, x)
+fig = plt.figure(figsize=(16, 4))
+ax = fig.add_subplot(111)
+ax.plot(dates, powers)
+ax.set_ylim(0)
+ax.set_ylabel('Power (Watts)')
+fig.savefig('/home/samuel/Downloads/spline.png', bbox_inches='tight')
 
+clean = [(a, b) for a, b in zip(powers, deltas) if a is not None and b is not None]
+powers, deltas = zip(*clean)
+total_power = integrate.simps(powers, deltas)
+print(total_power)
 
-nx, ny = spline(x, y, incr=10000*60)
-nx = map(int, nx)
+date_diff = max(dates)-min(dates)
 
-from operator import itemgetter
-minspeed = 10
-maxspeed = 40
-startTime = None
-total_diff = 0
-data.sort(key=itemgetter(0))
+tck = interpolate.splrep(powers, deltas, s=0, k=2)
+xnew = np.arange(0, max(deltas))
+ynew = interpolate.splev(xnew, tck, der=0)
 
-for i, each in enumerate(data):
-    dt = each[0]
-    ws = each[2]
-    gs = each[3]
-    if ws is None:
-        t = 0
-    elif gs is None:
-        t = ws
-    else:
-        t = (ws + gs)/2
-
-    if minspeed < t < maxspeed and i < len(data)-1:
-        if startTime is None:
-            startTime = dt
-    elif startTime is not None:
-        diff = dt - startTime
-        total_diff += diff.total_seconds()
-        startTime = None
-
-mindate, maxdate = (data[0][0], data[-1][0])
-diff = maxdate - mindate
-seconds = diff.total_seconds()
-print(total_diff / seconds * 100)
+total_power = integrate.simps(ynew, xnew)

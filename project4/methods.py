@@ -30,7 +30,7 @@ def parse_data_file(filepath):
     
             temp, ws, gs, d = map(try_float_conv, [temp, ws, gs, d])
             # keep only datetime, wind speed, gust speed
-            data.append((dt, ws, gs))
+            data.append((dt, temp, ws, gs))
 
     sorted_data = sorted(data, key=itemgetter(0))
     mindate = sorted_data[0][0]
@@ -51,7 +51,7 @@ def interpolate_wind_power_table(filepath, xnew):
             data.append(map(int, row))
     
     x, y = zip(*data)
-    tck = interpolate.splrep(x, y, s=0, k=2)
+    tc = interpolate.splrep(x, y, s=0, k=2)
     ynew = interpolate.splev(xnew, tck, der=0)
 
-    return ynew
+    return map(lambda x: round(x, 4), xnew), map(lambda x: round(x, 4), ynew)
