@@ -1,4 +1,6 @@
+from scipy import interpolate
 from operator import itemgetter
+import numpy as np
 import csv
 import datetime
 
@@ -40,4 +42,15 @@ sorted_data = map(add_seconds_delta, sorted_data)
 
 just_dt, just_ws, just_gs, just_td = zip(*sorted_data)
 
-print(datetime.timedelta(seconds=max(just_td)/len(just_td)))
+with open('power_wind_table.csv', 'r') as f:
+    reader = csv.reader(f)
+    data = []
+    # windspeed, power
+    for row in reader:
+        data.append(map(int, row))
+
+x, y = zip(*data)
+
+tck = interpolate.splrep(x, y, s=0, k=2)
+xnew = np.arange(0, 50, 0.1)
+ynew = interpolate.splev(xnew, tck, der=0)
