@@ -46,7 +46,7 @@ def part_one(data):
     # plots temp_axis.plot(dates, temps)
     jwind_axis.plot(dates, winds)
     wind_axis.plot(dates, winds)
-    wind_averaged_axis.plot(dates, awinds)
+    wind_averaged_axis.plot(dates, awinds, 'o')
     # plot gust repr
     max_gust = reduce(lambda a, b: a if a > b else b, [a[2] for a in gusts])
     min_gust = reduce(lambda a, b: a if a < b else b, [a[2] for a in gusts])
@@ -69,6 +69,8 @@ def part_one(data):
     wind_axis.set_ylabel('Wind Speed (mph)')
     wind_axis.set_title('Wind Speed')
     wind_axis.set_ylabel('Wind Speed (mph)')
+    wind_averaged_axis.set_title('Averaged Gust and Wind Speed')
+    wind_averaged_axis.set_ylabel('Speed (mph)')
     
     ########################################
     # general axis settings
@@ -79,15 +81,16 @@ def part_one(data):
     daysFormat = DateFormatter('%d')
     for ax in afig.axes + fig.axes + wfig.axes:
         temp_axis.set_xlabel('Day')
-        plt.xticks(rotation=90)
         ax.xaxis.set_major_locator(months)
         ax.xaxis.set_major_formatter(monthsFormat)
         ax.xaxis.set_minor_locator(days)
         ax.xaxis.set_minor_formatter(daysFormat)
+        for tick in ax.xaxis.get_major_ticks():
+            tick.label.set_rotation('vertical')
+
         #ax.fmt_xdata = DateFormatter('%b-%d')
         ax.autoscale_view()
     
-
     ########################################
     # plot output
     wout_fpath = '/home/samuel/Downloads/plot_wind.png'
@@ -98,7 +101,7 @@ def part_one(data):
     big = (30, 10)
     small = (15, 5)
     fig.set_size_inches(*big)
-    afig.set_size_inches(*small)
+    afig.set_size_inches(*big)
     wfig.set_size_inches(*big)
 
     print('saving figure to "{}"'.format(wout_fpath))
