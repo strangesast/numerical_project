@@ -36,12 +36,15 @@ def part_one(data):
     gs = gridspec.GridSpec(2, 10)
     fig = plt.figure()
     afig = plt.figure()
+    wfig = plt.figure()
+    jwind_axis = wfig.add_subplot(111)
     temp_axis = fig.add_subplot(gs[1, :])
     wind_axis = fig.add_subplot(gs[0, :])
     wind_averaged_axis = afig.add_subplot(111)
     
     ########################################
     # plots temp_axis.plot(dates, temps)
+    jwind_axis.plot(dates, winds)
     wind_axis.plot(dates, winds)
     wind_averaged_axis.plot(dates, awinds)
     # plot gust repr
@@ -58,8 +61,11 @@ def part_one(data):
     
     ########################################
     # specific axis settings
+
     temp_axis.set_title('Temperature')
     temp_axis.set_ylabel('Temperature ($^\circ$F)')
+    jwind_axis.set_title('Interpolated Wind Speed')
+    wind_axis.set_ylabel('Wind Speed (mph)')
     wind_axis.set_title('Wind Speed')
     wind_axis.set_ylabel('Wind Speed (mph)')
     
@@ -68,19 +74,22 @@ def part_one(data):
 
     #afig.autofmt_xdate()
     #fig.autofmt_xdate()
-    monthsFormat = DateFormatter('%b')
+    monthsFormat = DateFormatter('%b   -')
     daysFormat = DateFormatter('%d')
-    for ax in afig.axes + fig.axes:
+    for ax in afig.axes + fig.axes + wfig.axes:
         temp_axis.set_xlabel('Day')
+        plt.xticks(rotation=90)
         ax.xaxis.set_major_locator(months)
         ax.xaxis.set_major_formatter(monthsFormat)
         ax.xaxis.set_minor_locator(days)
-        #ax.xaxis.set_minor_formatter(daysFormat)
+        ax.xaxis.set_minor_formatter(daysFormat)
         #ax.fmt_xdata = DateFormatter('%b-%d')
         ax.autoscale_view()
     
+
     ########################################
     # plot output
+    wout_fpath = '/home/samuel/Downloads/plot_wind.png'
     out_fpath = '/home/samuel/Downloads/plot_both.png'
 
     aout_fpath = '/home/samuel/Downloads/plot_averaged.png'
@@ -89,13 +98,19 @@ def part_one(data):
     small = (15, 5)
     fig.set_size_inches(*big)
     afig.set_size_inches(*small)
+    wfig.set_size_inches(*big)
 
+    print('saving figure to "{}"'.format(wout_fpath))
+    wfig.savefig(wout_fpath, bbox_inches='tight')
     print('saving figure to "{}"'.format(out_fpath))
     fig.savefig(out_fpath, bbox_inches='tight')
     print('saving figure to "{}"'.format(aout_fpath))
     afig.savefig(aout_fpath, bbox_inches='tight')
     print('done')
 
+part_one(data)
+
+print('part two')
 deltas = [each[header.index('delta')] for each in data]
 dates = [each[header.index('time')] for each in data]
 temps = [each[header.index('temperature')] for each in data]
@@ -169,4 +184,26 @@ ax3.plot(x[:-20], winds[:-20], linewidth=0.5)
 #for a2 in ax2.get_yticklabels():
 #    a2.set_color('r')
 
-fig.savefig('/home/samuel/Downloads/energy_and_power_and_wind.png', bbox_inches='tight', dpi=500)
+#fig.savefig('/home/samuel/Downloads/energy_and_power_and_wind.png', bbox_inches='tight', dpi=500)
+
+xnew = np.arange(0, max(deltas))
+ynew = interpolate.splev(xnew, tck, der=0)
+xnew_d = [mindate + datetime.timedelta(seconds=x) for x in xnew]
+
+
+fig = plt.figure(figsize=(10, 4))
+ax = fig.add_subplot(111)
+ax.plot(xnew_d, ynew)
+ax.set_ylim(0)
+ax.set_ylabel('Power')
+ax.set_xlabel('Time (seconds)')
+#xlim = sorted(dates)[-1]
+#ax.set_xlim([0, xlim])
+ax2 = ax.twinx()
+#ax2.set_xlim([0, xlim])
+ax2.set_ylabel('Energy')
+ax2.plot(dates[:-13], energy[:-12], 'r')
+fig.savefig('/home/samuel/Downloads/test.png', bbox_inches='tight')
+
+first = integrate.simps(ynew, xnew)
+second = integrate.simps(y, deltas)
