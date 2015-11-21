@@ -64,7 +64,8 @@ def part_one(data):
 
     temp_axis.set_title('Temperature')
     temp_axis.set_ylabel('Temperature ($^\circ$F)')
-    jwind_axis.set_title('Interpolated Wind Speed')
+    jwind_axis.set_title('Interpolated Wind Speed Data')
+    jwind_axis.set_ylabel('Wind Speed (mph)')
     wind_axis.set_ylabel('Wind Speed (mph)')
     wind_axis.set_title('Wind Speed')
     wind_axis.set_ylabel('Wind Speed (mph)')
