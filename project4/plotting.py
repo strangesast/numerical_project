@@ -211,3 +211,6 @@ fig.savefig('/home/samuel/Downloads/test.png', bbox_inches='tight')
 
 first = integrate.simps(ynew, xnew)
 second = integrate.simps(y, deltas)
+
+print('spline simps approximation: {}'.format(first))
+print('data simps approximation:   {}'.format(second))

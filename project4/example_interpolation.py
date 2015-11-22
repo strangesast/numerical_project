@@ -1,6 +1,7 @@
 from __future__ import division
 import os
 import matplotlib
+import csv
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.dates import YearLocator, MonthLocator, DayLocator, DateFormatter, HourLocator
@@ -20,8 +21,22 @@ data, mindate = parse_data_file(data_fpath)
 
 dates, temps, winds, gusts, deltas = zip(*data)
 
+with open(windtable_fname, 'r') as f:
+    reader =csv.reader(f)
+    pw = [row for row in reader]
+    xpw, ypw = zip(*pw)
+
 xnew = np.arange(0, 50, 0.1)
 xnew, ynew = interpolate_wind_power_table(windtable_fname, xnew)
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.plot(xnew, ynew)
+ax.plot(xpw, ypw, 'o')
+ax.set_xlabel('Wind Speed (mph)')
+ax.set_ylabel('Generated Power (Watts)')
+
+fig.savefig('/home/samuel/Downloads/wind_to_power.png', bbox_inches='tight')
 
 interpolated_dict = dict(zip(xnew, ynew)) # conversion dict
 interpolated_dict[None] = None # add None for gaps in data
