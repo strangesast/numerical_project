@@ -112,7 +112,7 @@ def part_one(data):
     afig.savefig(aout_fpath, bbox_inches='tight')
     print('done')
 
-part_one(data)
+#part_one(data)
 
 print('part two')
 deltas = [each[header.index('delta')] for each in data]
@@ -155,15 +155,21 @@ gs = gridspec.GridSpec(3, 10)
 ax = fig.add_subplot(gs[0,:])
 ax2 = fig.add_subplot(gs[1,:])
 ax3 = fig.add_subplot(gs[2,:])
-ax.set_ylabel('Energy (sum)')
-ax2.set_ylabel('Power')
-ax3.set_ylabel('Wind Speed')
+ax.set_ylabel('Energy (kWh)')
+ax2.set_ylabel('Power (kW)')
+ax3.set_ylabel('Wind Speed (mph)')
 
 x, y = zip(*both)
 y = [yi if yi > 0 else 0 for yi in y]
 #ax.plot(x, y)
 
 dt, powers = zip(*timedelta_power)
+
+apowers = [each if each > 0 else 0 for each in powers]
+
+print("max power: {}".format(max(apowers)))
+print("avg power: {}".format(sum(apowers)/len(apowers)))
+print("min power: {}".format(min(apowers)))
 
 energy = []
 last_tot = 0
@@ -178,17 +184,17 @@ for i, t in enumerate(dt):
     last_tot = total_power
     energy.append(total_power)
 
-ax.plot(x[:-20], energy[:-19], linewidth=0.5)
+ax.plot(x[:-20], map(lambda x: x/3.6, energy[:-19]), linewidth=0.5) # energy
 #ax2 = ax.twinx()
 #ax2.plot(x[:-20], y[:-20], 'r', linewidth=0.5)
 #ax2.set_ylim(0)
-ax2.plot(x[:-20], y[:-20], linewidth=0.5)
-ax3.plot(x[:-20], winds[:-20], linewidth=0.5)
+ax2.plot(x[:-20], map(lambda x: x/1000, y[:-20]), linewidth=0.5) # power
+ax3.plot(x[:-20], winds[:-20], linewidth=0.5) # windspeed
 
 #for a2 in ax2.get_yticklabels():
 #    a2.set_color('r')
 
-#fig.savefig('/home/samuel/Downloads/energy_and_power_and_wind.png', bbox_inches='tight', dpi=500)
+fig.savefig('/home/samuel/Downloads/energy_and_power_and_wind.png', bbox_inches='tight', dpi=500)
 
 xnew = np.arange(0, max(deltas))
 ynew = interpolate.splev(xnew, tck, der=0)
@@ -197,20 +203,39 @@ xnew_d = [mindate + datetime.timedelta(seconds=x) for x in xnew]
 
 fig = plt.figure(figsize=(10, 4))
 ax = fig.add_subplot(111)
+ax.set_title('Power and Total Energy')
 ax.plot(xnew_d, ynew)
 ax.set_ylim(0)
-ax.set_ylabel('Power')
-ax.set_xlabel('Time (seconds)')
+ax.set_ylabel('Power (Watts)')
+ax.set_xlabel('Date')
 #xlim = sorted(dates)[-1]
 #ax.set_xlim([0, xlim])
 ax2 = ax.twinx()
 #ax2.set_xlim([0, xlim])
-ax2.set_ylabel('Energy')
-ax2.plot(dates[:-13], energy[:-12], 'r')
-fig.savefig('/home/samuel/Downloads/test.png', bbox_inches='tight')
+ax2.plot(dates[:-13], map(lambda x: x/3600, energy[:-12]), 'r')
+ax2.set_ylabel('Energy (kWh)')
+ax.fmt_xdata = DateFormatter('%Y-%m-%d')
+fig.autofmt_xdate()
+fig.savefig('/home/samuel/Downloads/power_energy_twinplot.png', bbox_inches='tight')
 
 first = integrate.simps(ynew, xnew)
 second = integrate.simps(y, deltas)
 
 print('spline simps approximation: {}'.format(first))
 print('data simps approximation:   {}'.format(second))
+
+cost_per_kilowatthour = 0.121829
+dates = dates[:-13]
+energy = [x/3600 for x in energy[:-12]]
+money = [cost_per_kilowatthour*x-4500 for x in energy]
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.plot(dates, money)
+ax.plot([min(dates), max(dates)], [0, 0])
+ax.set_ylabel('Amount earned ($)')
+ax.fmt_xdata = DateFormatter('%Y-%m-%d')
+
+fig.autofmt_xdate()
+
+fig.savefig('/home/samuel/Downloads/money_plot.png')
