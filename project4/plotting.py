@@ -246,3 +246,19 @@ print("std_err: {}".format(std_err))
 
 fig.autofmt_xdate()
 fig.savefig('/home/samuel/Downloads/money_plot.png')
+
+delta_wind = np.diff([x if x is not None else 0 for x in winds]) / np.diff([t for t in deltas])
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.plot(dates[:-1], delta_wind*3600, 'r')
+ax2 = ax.twinx()
+ax2.plot(dates, winds)
+ax2.set_ylabel('mph')
+
+ax.set_xlabel('Date')
+ax.set_ylabel('mph / hr')
+ax.set_title('Time Differentiated Wind Speed and Wind Speed')
+
+fig.autofmt_xdate()
+fig.set_size_inches((30, 10))
+fig.savefig('/home/samuel/Downloads/delta_wind_delta_time.png', bbox_inches='tight')
