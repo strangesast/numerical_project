@@ -33,6 +33,13 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(xnew, ynew)
 ax.plot(xpw, ypw, 'o')
+max_power = max(ynew)
+xpeak = xnew[ynew.index(max_power)]
+ypeak = max_power
+ax.plot([xpeak], [ypeak], 'ro')
+ax.annotate('peak power', xy=(xpeak, ypeak), xytext=(xpeak+10, ypeak+40),
+  arrowprops=dict(facecolor='black', shrink=0.10, width=1, headwidth=10),
+)
 ax.set_xlabel('Wind Speed (mph)')
 ax.set_ylabel('Generated Power (Watts)')
 
