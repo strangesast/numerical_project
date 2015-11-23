@@ -8,6 +8,7 @@ from scipy import integrate, interpolate
 from matplotlib.dates import YearLocator, MonthLocator, DayLocator, DateFormatter
 import matplotlib.gridspec as gridspec
 from operator import itemgetter
+import scipy.stats
 import datetime
 
 from methods import parse_data_file, interpolate_wind_power_table
@@ -212,7 +213,7 @@ ax.set_xlabel('Date')
 #ax.set_xlim([0, xlim])
 ax2 = ax.twinx()
 #ax2.set_xlim([0, xlim])
-ax2.plot(dates[:-13], map(lambda x: x/3600, energy[:-12]), 'r')
+ax2.plot(dates[:-13], map(lambda x: x/3600000, energy[:-12]), 'r')
 ax2.set_ylabel('Energy (kWh)')
 ax.fmt_xdata = DateFormatter('%Y-%m-%d')
 fig.autofmt_xdate()
@@ -227,15 +228,21 @@ print('data simps approximation:   {}'.format(second))
 cost_per_kilowatthour = 0.121829
 dates = dates[:-13]
 energy = [x/3600 for x in energy[:-12]]
-money = [cost_per_kilowatthour*x-4500 for x in energy]
+money = [cost_per_kilowatthour*x/1000-4500 for x in energy]
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
+
+
 ax.plot(dates, money)
-ax.plot([min(dates), max(dates)], [0, 0])
 ax.set_ylabel('Amount earned ($)')
 ax.fmt_xdata = DateFormatter('%Y-%m-%d')
 
-fig.autofmt_xdate()
+slope, intercept, r_value, p_value, std_err = scipy.stats.linregress([(t-datetime.datetime(1970,1,1)).total_seconds() for t in dates], money)
+print("slope: {} $/day".format(slope*(3600*24)))
+print("intercept: {}".format(intercept))
+print("r^2: {}".format(r_value**2))
+print("std_err: {}".format(std_err))
 
+fig.autofmt_xdate()
 fig.savefig('/home/samuel/Downloads/money_plot.png')
