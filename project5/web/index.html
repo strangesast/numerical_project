@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <title>MA377 Project 5</title>
+    <style>
+      .input-group {
+        margin: 10px 0px;
+      }
+      .input-group > input {
+        padding: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="canvas-properties" class="input-group">
+      <span>Width:</span>
+      <input name="width" type="number" value=1000></input>
+      <span>Height:</span>
+      <input name="height" type="number" value=500></input>
+      <button>Initialize</button>
+    </div>
+    <div class="input-group">
+      <span>Hill Shape:</span>
+      <input name="hill_shape" type="text" value="1000 exp( 10e-6 (x - 4800) ^ 2 )" disabled=true></input>
+      <button>Update</button>
+    </div>
+
+    <div class="input-group">
+      <span>Target Position (y):</span>
+      <input name="target_position" type="number" value=5100></input>
+      <button>Update</button>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script src="./index.js"></script>
+  </body>
+</html>
