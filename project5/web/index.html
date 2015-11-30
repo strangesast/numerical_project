@@ -2,8 +2,11 @@
   <head>
     <title>MA377 Project 5</title>
     <style>
-      .input-group {
+      .property-group {
         margin: 10px 0px;
+      }
+      .input-group {
+        margin: 5px 0px;
       }
       .input-group > input {
         padding: 3px;
@@ -12,24 +15,46 @@
   </head>
   <body>
     <div id="canvas-properties" class="input-group">
-      <span>Width:</span>
-      <input name="width" type="number" value=1000></input>
-      <span>Height:</span>
-      <input name="height" type="number" value=500></input>
+      <h3>Canvas Properties</h3>
+      <div class="input-group">
+        <span>Width:</span>
+        <input name="width" type="number" value=1000></input>
+      </div>
+      <div class="input-group">
+        <span>Height:</span>
+        <input name="height" type="number" value=500></input>
+      </div>
       <button>Initialize</button>
     </div>
-    <div class="input-group">
-      <span>Hill Shape:</span>
-      <input name="hill_shape" type="text" value="1000 exp( 10e-6 (x - 4800) ^ 2 )" disabled=true></input>
-      <button>Update</button>
+    <div id="hill-properties" class="input-group">
+      <h3>Hill Properties</h3>
+      <div class="input-group">
+        <span>Hill Shape:</span>
+        <input name="hill_shape" type="text" value="1000 exp( 10e-6 (x - 4800) ^ 2 )" disabled=true></input>
+      </div>
+      <div class="input-group">
+        <span>Range:</span>
+        <input name="lower_bound" type="number" value=-100 disabled=true></input>
+        <span><</span>
+        <input name="upper_bound" type="number" value=5200 disabled=true></input>
+      </div>
+      <div class="input-group">
+        <span>Ceiling:</span>
+        <input name="ceiling" type="number" value=10000 disabled=true></input>
+      </div>
+      <button name="update" disabled=true>Update</button>
     </div>
 
-    <div class="input-group">
+    <div id="target-properties" class="input-group">
+      <h3>Target Properties</h3>
       <span>Target Position (y):</span>
       <input name="target_position" type="number" value=5100></input>
-      <button>Update</button>
+      <button name="update">Update</button>
     </div>
     <canvas id="canvas"></canvas>
+    <div>
+      <button id="save-canvas">Save as png</button>
+    </div>
     <script src="./index.js"></script>
   </body>
 </html>
