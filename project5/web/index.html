@@ -14,7 +14,7 @@
     </style>
   </head>
   <body>
-    <div id="canvas-properties" class="input-group">
+    <div id="canvas-properties" class="property-group">
       <h3>Canvas Properties</h3>
       <div class="input-group">
         <span>Width:</span>
@@ -26,7 +26,17 @@
       </div>
       <button>Initialize</button>
     </div>
-    <div id="hill-properties" class="input-group">
+    <div id="init-properties" class="property-group">
+      <h3>Initial Properties</h3>
+      <div class="input-group">
+        <span>Inital Position:</span>
+        <input name="initial_position" type="number" value=0></input>
+        <span>Angle:</span>
+        <input name="initial_angle" type="number" value=45></input>
+      </div>
+      <button>Update</button>
+    </div>
+    <div id="hill-properties" class="property-group">
       <h3>Hill Properties</h3>
       <div class="input-group">
         <span>Hill Shape:</span>
@@ -44,15 +54,16 @@
       </div>
       <button name="update" disabled=true>Update</button>
     </div>
-
-    <div id="target-properties" class="input-group">
+    <div id="target-properties" class="property-group">
       <h3>Target Properties</h3>
       <span>Target Position (y):</span>
       <input name="target_position" type="number" value=5100></input>
       <button name="update">Update</button>
+      <br>
+      <button name="fire" id="fire">Fire</button>
     </div>
     <canvas id="canvas"></canvas>
-    <div>
+    <div id="output-properties" class="property-group">
       <button id="save-canvas">Save as png</button>
     </div>
     <script src="./index.js"></script>
