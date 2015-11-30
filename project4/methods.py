@@ -29,7 +29,6 @@ def parse_data_file(filepath):
                 break
     
             temp, ws, gs, d = map(try_float_conv, [temp, ws, gs, d])
-            # keep only datetime, wind speed, gust speed
             data.append((dt, temp, ws, gs))
 
     sorted_data = sorted(data, key=itemgetter(0))
@@ -39,7 +38,7 @@ def parse_data_file(filepath):
     def add_seconds_delta(row):
         return row + ((row[0] - mindate).total_seconds(), )
 
-    return map(add_seconds_delta, sorted_data)
+    return map(add_seconds_delta, sorted_data), mindate
 
 
 def interpolate_wind_power_table(filepath, xnew):
