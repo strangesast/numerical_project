@@ -2,6 +2,11 @@ var canvas_properties = document.getElementById("canvas-properties");
 var target_properties = document.getElementById("target-properties");
 var init_properties = document.getElementById('init-properties');
 var fire_button = document.getElementById('fire');
+var fire_lots_button = document.getElementById('fire-lots');
+
+var g = 9.81; // m / s^2
+var initial_velocity = 350; // m / s
+var explosion_radius = 3;
 
 // get canvas context & reset width + height
 var initialize = function(canvas, width, height) {
@@ -55,6 +60,17 @@ var draw_background = function(ctx, func, range, width, height, hrat) {
     var percent = 0.25 + 0.75*(1 - (pressures[j]-minval)/(maxval-minval));
     ctx.fillStyle = 'rgba(173, 216, 230, ' + percent.toString() + ')';
     ctx.fillRect(0, j*pressure_interval, width, pressure_interval);
+  }
+};
+
+
+var draw_background = function(ctx, func, range, width, height, hrat) {
+  var pressures = [];
+  var pressure_interval = 20;
+  for(var i=0; i < Math.floor(height / pressure_interval); i++) {
+    var hi = i*pressure_interval;
+    var ah = hi / hrat; // height in m 
+    console.log(rho(ah));
   }
 };
 
@@ -133,57 +149,59 @@ initialize_button.addEventListener('click', function(e) {
   var hill_function = function(x) {
     return 1000*Math.exp(Math.pow(x-4800, 2)/10e6);
   };
-  var range = [-100, 5200];
 
-  initialize(document.getElementById("canvas"), width, height).then(function(ctx) {
-    var hrat = determine_height_rat(hill_function, range, height, 10000);
-    draw_background(ctx, hill_function, range, width, height, hrat);
-    draw_hill(ctx, hill_function, range, width, height, hrat);
-    // NOTE: need to update this: needs to be modifiable
-    draw_start(ctx, hill_function, range, width, height, 0, hrat);
-    draw_heights(ctx, width, height, hrat);
-    draw_widths(ctx, width, height, range);
-    
-    // add event listeners for properties
-    var target_update_listener = function(the_context) {
-      return function(e) {
-        var target_position = e.target.parentElement.querySelector('[name=target_position]').value;
-        draw_target(the_context, hill_function, range, width, height, target_position, hrat);
-      };
-    }(ctx);
+  var range = [-100, 8200]; // NOTE: should be defined by 'hill properties'
 
-    target_properties.addEventListener('click', target_update_listener);
-
-    var initial_velocity = 350; // m / s
-
-    var fire_button_listener = function(e) {
-      var angle = init_properties.querySelector('[name=initial_angle]').value;
-      var gen = fire(ctx, [0, hill_function(0)], angle, initial_velocity, hill_function, pressure_function, width, height, hrat, range);
-
-      var interval = setInterval(function() {
-        var n = gen.next();
-        if(n.done) {
-          clearInterval(interval);
-          console.log("done");
-        } else {
-          //console.log(n.value);
-        }
-      }, 10);
-    };
-
-    fire_button.addEventListener('click', fire_button_listener);
-  });
+  initialize(
+    document.getElementById("canvas"),
+    width,
+    height
+  ).then(post_initialization(width, height, hill_function, range));
 });
 
 // air pressure
 var rho = function(y) {
-  var a = -4.75e-8;
-  var b = 2.0e-4;
-  return a*y + b;
+  var a = -4.75/Math.pow(10, 9);
+  var b = 2.0/Math.pow(10, 4);
+  var ret = a*y + b;
+  if(ret < 0) {
+    return 0;
+  } else {
+    return ret;
+  }
+};
+
+var fire_over_range = function* (ctx, position, angle_interval, velocity, hill_function, pressure_function, width, height, hrat, range) {
+  var gens = [];
+  console.log('gens');
+  // add generator for each angle
+  for(var i=1; i < Math.floor(180 / angle_interval); i++) {
+    var angle = angle_interval*i;
+    gens.push(fire(ctx, [0, hill_function(0)], angle, velocity, hill_function, pressure_function, width, height, hrat, range));
+  }
+  var trials = 0;
+  while(gens.length > 0 && trials < 1000) {
+    for(var j=0; j < gens.length; j++) {
+      var n = gens[j].next();
+      if(n.done) {
+        gens[j] = null;
+      }
+    }
+    var k = 0;
+    // remove dead generators
+    while(k < gens.length) {
+      if(gens[k] === null) {
+        gens.splice(k, 1);
+      } else {
+        k++;
+      }
+    }
+    yield;
+    trials++;
+  }
 };
 
 var fire = function* (ctx, position, angle, velocity, hill_function, pressure_function, width, height, hrat, range) {
-  var g = 9.81; // m / s^2
   var angle_rad = angle*Math.PI / 180;
 
   var x_c = position[0];
@@ -206,12 +224,12 @@ var fire = function* (ctx, position, angle, velocity, hill_function, pressure_fu
   while (y_c >= hill_function(x_c) && y_c < hill_function(range[0]) + 10000 && x_c > range[0] && x_c < range[1]) {
     ctx.beginPath();
     ctx.moveTo(last_xi, height - last_yi);
+
     x_c += x_v_c/10;
-    y_c -= y_v_c/10;
+    y_c += y_v_c/10;
 
-    d_v_x = rho(y_c)*Math.pow(Math.abs(x_v_c), 2)/10;
-    d_v_y = (rho(y_c)*Math.pow(Math.abs(y_v_c), 2) + g)/10;
-
+    d_v_x = -rho(y_c)*Math.pow(Math.abs(x_v_c), 2)/10;
+    d_v_y = -(rho(y_c)*Math.pow(Math.abs(y_v_c), 2) + g)/10;
 
     x_v_c += d_v_x;
     y_v_c += d_v_y;
@@ -230,9 +248,75 @@ var fire = function* (ctx, position, angle, velocity, hill_function, pressure_fu
   }
   ctx.beginPath();
   ctx.fillStyle = 'red';
-  ctx.arc(last_xi, height-last_yi, 10, 0, 2*Math.PI);
+  ctx.arc(last_xi, height-last_yi, explosion_radius, 0, 2*Math.PI);
   ctx.fill();
   yield ret;
+};
+
+
+var post_initialization = function(width, height, hill_function, range) {
+  return function(ctx) {
+    var hrat = determine_height_rat(hill_function, range, height, 10000);
+    draw_background(ctx, hill_function, range, width, height, hrat);
+    draw_hill(ctx, hill_function, range, width, height, hrat);
+    // NOTE: need to update this: needs to be modifiable
+    draw_start(ctx, hill_function, range, width, height, 0, hrat);
+    draw_heights(ctx, width, height, hrat);
+    draw_widths(ctx, width, height, range);
+    
+    // add event listeners for properties
+    var target_update_listener = function(the_context) {
+      return function(e) {
+        var target_position = e.target.parentElement.querySelector('[name=target_position]').value;
+        draw_target(the_context, hill_function, range, width, height, target_position, hrat);
+      };
+    }(ctx);
+  
+    target_properties.addEventListener('click', target_update_listener);
+  
+  
+    var fire_button_listener = function(e) {
+      var angle = target_properties.querySelector('[name=initial_angle]').value;
+      var gen = fire(ctx, [0, hill_function(0)], angle, initial_velocity, hill_function, pressure_function, width, height, hrat, range);
+  
+      var interval = setInterval(function() {
+        var n = gen.next();
+        if(n.done) {
+          clearInterval(interval);
+          console.log("done");
+        } else {
+          //console.log(n.value);
+        }
+      }, 10);
+    };
+  
+    fire_button.addEventListener('click', fire_button_listener);
+  
+    var fire_lots_listener = function(e) {
+      var angle_interval = e.target.parentElement.querySelector('[name=angle_interval]').value;
+      if(angle_interval === "" || isNaN(angle_interval)){
+        alert("invalid angle interval");
+        return;
+      } else {
+        angle_interval = Number(angle_interval);
+      }
+  
+      var gen = fire_over_range(ctx, [0, hill_function(0)], angle_interval, initial_velocity, hill_function, pressure_function, width, height, hrat, range);
+      var interval = setInterval(function() {
+  
+        var n = gen.next();
+        if(n.done) {
+          clearInterval(interval);
+          console.log("done");
+        } else {
+          //console.log(n.value);
+        }
+      }, 10);
+  
+    };
+  
+    fire_lots_button.addEventListener('click', fire_lots_listener);
+  };
 };
 
 save_canvas_button = document.getElementById('save-canvas');

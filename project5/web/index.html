@@ -14,8 +14,10 @@
     </style>
   </head>
   <body>
+    <h1>Project IV</h1>
     <div id="canvas-properties" class="property-group">
       <h3>Canvas Properties</h3>
+      <p>Specify the dimensions of the canvas (output) in pixels</p>
       <div class="input-group">
         <span>Width:</span>
         <input name="width" type="number" value=1000></input>
@@ -28,16 +30,16 @@
     </div>
     <div id="init-properties" class="property-group">
       <h3>Initial Properties</h3>
+      <p>Select a starting position</p>
       <div class="input-group">
         <span>Inital Position:</span>
-        <input name="initial_position" type="number" value=0></input>
-        <span>Angle:</span>
-        <input name="initial_angle" type="number" value=45></input>
+        <input name="initial_position" type="number" value=0 disabled=true></input>
       </div>
-      <button>Update</button>
+      <button disabled=true>Update</button>
     </div>
     <div id="hill-properties" class="property-group">
       <h3>Hill Properties</h3>
+      <p>Specify the function that defines the 'hill' shape</p>
       <div class="input-group">
         <span>Hill Shape:</span>
         <input name="hill_shape" type="text" value="1000 exp( 10e-6 (x - 4800) ^ 2 )" disabled=true></input>
@@ -56,11 +58,23 @@
     </div>
     <div id="target-properties" class="property-group">
       <h3>Target Properties</h3>
-      <span>Target Position (y):</span>
-      <input name="target_position" type="number" value=5100></input>
-      <button name="update">Update</button>
-      <br>
-      <button name="fire" id="fire">Fire</button>
+      <p>Select an angle to test or specify an angle delta that will be tested over 180 degrees simultaneously</p>
+      <div class="property-group">
+        <span>Target Position (y):</span>
+        <input name="target_position" type="number" value=5100></input>
+        <button name="update">Update</button>
+      </div>
+      <div class="property-group">
+        <span>Angle:</span>
+        <input name="initial_angle" type="number" value=45></input>
+        <button name="fire" id="fire">Fire</button>
+      </div>
+      <div class="property-group">
+        <span>Angle Interval</span>
+        <input name="angle_interval" type="number" max="180" min="1" value=15></input>
+        <button name="fire_lots" id="fire-lots">Fire lots</button>
+      </div>
+
     </div>
     <canvas id="canvas"></canvas>
     <div id="output-properties" class="property-group">
