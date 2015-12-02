@@ -1,5 +1,6 @@
 var canvas_properties = document.getElementById("canvas-properties");
 var target_properties = document.getElementById("target-properties");
+var hill_properties = document.getElementById("hill-properties");
 var init_properties = document.getElementById('init-properties');
 var fire_button = document.getElementById('fire');
 var fire_lots_button = document.getElementById('fire-lots');
@@ -111,6 +112,28 @@ var draw_widths = function(ctx, width, height, range) {
   ctx.restore();
 };
 
+var get_ceiling = function() {
+  var ceiling = hill_properties.querySelector('[name=ceiling]').value;
+  console.log(ceiling);
+  if(isNaN(ceiling) || ceiling == "") {
+    alert("invalid ceiling");
+    return 1000;
+  } else {
+    return Number(ceiling);
+  }
+}
+
+var get_range = function() {
+  var range_upper = hill_properties.querySelector('[name=upper_bound]').value;
+  var range_lower = hill_properties.querySelector('[name=lower_bound]').value;
+  if(isNaN(range_upper) || isNaN(range_lower)) {
+    alert("invalid range");
+    return [-100, 5200];
+  } else {
+    return [range_lower, range_upper]
+  }
+}
+
 var determine_height_rat = function(func, range, height, ceiling) {
   var both = determine_domain(func, range);
   var minval = both[0];
@@ -147,10 +170,11 @@ initialize_button.addEventListener('click', function(e) {
   var height = canvas_properties.querySelector("[name=height]").value;
   // get hill function... or just use this
   var hill_function = function(x) {
-    return 1000*Math.exp(Math.pow(x-4800, 2)/10e6);
+    return 1000*Math.exp(-Math.pow(4800-x, 2)/10e6);
   };
 
-  var range = [-100, 8200]; // NOTE: should be defined by 'hill properties'
+  //var range = [-100, 10200]; // NOTE: should be defined by 'hill properties'
+  var range = get_range(); 
 
   initialize(
     document.getElementById("canvas"),
@@ -161,7 +185,7 @@ initialize_button.addEventListener('click', function(e) {
 
 // air pressure
 var rho = function(y) {
-  var a = -4.75/Math.pow(10, 9);
+  var a = -4.75/Math.pow(10, 8);
   var b = 2.0/Math.pow(10, 4);
   var ret = a*y + b;
   if(ret < 0) {
@@ -256,7 +280,8 @@ var fire = function* (ctx, position, angle, velocity, hill_function, pressure_fu
 
 var post_initialization = function(width, height, hill_function, range) {
   return function(ctx) {
-    var hrat = determine_height_rat(hill_function, range, height, 10000);
+    var ceiling = get_ceiling();
+    var hrat = determine_height_rat(hill_function, range, height, ceiling);
     draw_background(ctx, hill_function, range, width, height, hrat);
     draw_hill(ctx, hill_function, range, width, height, hrat);
     // NOTE: need to update this: needs to be modifiable
