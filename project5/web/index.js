@@ -128,7 +128,7 @@ var get_range = function() {
   var range_lower = hill_properties.querySelector('[name=lower_bound]').value;
   if(isNaN(range_upper) || isNaN(range_lower)) {
     alert("invalid range");
-    return [-100, 5200];
+    return [-100, 10100];
   } else {
     return [range_lower, range_upper]
   }
@@ -170,7 +170,7 @@ initialize_button.addEventListener('click', function(e) {
   var height = canvas_properties.querySelector("[name=height]").value;
   // get hill function... or just use this
   var hill_function = function(x) {
-    return 1000*Math.exp(-Math.pow(4800-x, 2)/10e6);
+    return 1000*Math.exp(-Math.pow(4800-x, 2)/1000000);
   };
 
   //var range = [-100, 10200]; // NOTE: should be defined by 'hill properties'
