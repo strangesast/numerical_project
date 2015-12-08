@@ -115,13 +115,13 @@ var draw_widths = function(ctx, width, height, range) {
 var get_ceiling = function() {
   var ceiling = hill_properties.querySelector('[name=ceiling]').value;
   console.log(ceiling);
-  if(isNaN(ceiling) || ceiling == "") {
+  if(isNaN(ceiling) || ceiling === "") {
     alert("invalid ceiling");
     return 1000;
   } else {
     return Number(ceiling);
   }
-}
+};
 
 var get_range = function() {
   var range_upper = hill_properties.querySelector('[name=upper_bound]').value;
@@ -130,9 +130,9 @@ var get_range = function() {
     alert("invalid range");
     return [-100, 10100];
   } else {
-    return [range_lower, range_upper]
+    return [range_lower, range_upper];
   }
-}
+};
 
 var determine_height_rat = function(func, range, height, ceiling) {
   var both = determine_domain(func, range);
