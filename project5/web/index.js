@@ -427,7 +427,7 @@ plot_angles_event = function(e) {
     ctx.save();
     ctx.translate(padding + k*x_step, angles_canvas.height - padding + 5);
     ctx.rotate(-Math.PI/2);
-    ctx.fillText(Math.floor((k*x_step/angles_canvas.width*(xmax-xmin)+xmin)*100)/100, 0, 0);
+    ctx.fillText(Math.floor((k*x_step/(angles_canvas.width-padding*2)*(xmax-xmin)+xmin)*100)/100, 0, 0);
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.lineTo(angles_canvas.width, 0);
@@ -435,7 +435,7 @@ plot_angles_event = function(e) {
     ctx.restore();
   }
   for(var l=0; l < Math.floor((angles_canvas.height - padding*2) / x_step); l++) {
-    ctx.fillText(Math.floor((l*x_step/angles_canvas.height*(ymax-ymin)+ymin)*100)/100, angles_canvas.width, angles_canvas.height - (padding+l*x_step));
+    ctx.fillText(Math.floor((l*x_step/(angles_canvas.height-2*padding)*(ymax-ymin)+ymin)*100)/100, angles_canvas.width, angles_canvas.height - (padding+l*x_step));
 
   }
 
