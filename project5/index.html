@@ -1,0 +1,143 @@
+<html>
+  <head>
+    <title>MA377 Project 5</title>
+    <style>
+      .property-group {
+        margin: 10px 0px;
+      }
+      .input-group {
+        margin: 5px 0px;
+      }
+      .input-group > input {
+        padding: 3px;
+      }
+      #initialize {
+        padding: 15px;
+        font-size: 150%;
+      }
+      .table-container{
+        max-height: 600px;
+        max-width: 500px;
+        overflow: scroll;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Project V</h1>
+    <div id="canvas-properties" class="property-group">
+      <h3>Canvas Properties</h3>
+      <p>Specify the dimensions of the canvas (output) in pixels</p>
+      <div class="input-group">
+        <span>Width:</span>
+        <input name="width" type="number" min=0 value=1000></input>
+      </div>
+      <div class="input-group">
+        <span>Height:</span>
+        <input name="height" type="number" min=0 value=500></input>
+      </div>
+    </div>
+    <div id="background-properties" class="property-group">
+      <h3>Hill Properties</h3>
+      <p>Specify the function that defines the 'hill' shape</p>
+      <div class="input-group">
+        <span>Hill Shape:</span>
+        <input name="hill_shape" type="text" varname="x" value="1000*Math.exp(-Math.pow(4800-x, 2)/1000000)"></input>
+      </div>
+      <div class="input-group">
+        <span>Hill Color:</span>
+        <input name="hill_color" type="color" value="#000000"></input>
+      </div>
+
+
+      <div class="input-group">
+        <span>Range:</span>
+        <input name="x_lower_bound" type="number" value=-100></input>
+        <span><</span>
+        <input name="x_upper_bound" type="number" value=10100></input>
+      </div>
+      <div class="input-group">
+        <span>Altitude range:</span>
+        <input name="y_lower_bound" type="number" value=-500></input>
+        <input name="y_upper_bound" type="number" value=6000></input>
+      </div>
+      <div class="input-group">
+        <span>Wind Velocity:</span>
+        <input name="wind_velocity_profile" type="text" varname="y" value="0"></input>
+      </div>
+      <div class="input-group">
+      <div class="input-group">
+        <span>Pressure:</span>
+        <input name="pressure_shape" type="text" varname="y" value="(-4.75/Math.pow(10, 8))*y + 2.0/Math.pow(10, 4)"></input>
+      </div>
+      <div class="input-group">
+        <span>Start</span>
+        <input name="start-color" type="color" value="#0000FF"></input>
+        <span>End</span>
+        <input name="end-color" type="color" value="#ADD8E6"></input>
+      </div>
+      <button id="initialize">Initialize</button>
+    </div>
+    <div id="init-properties" class="property-group">
+      <h3>Initial Properties</h3>
+      <p>Select a starting position</p>
+      <div class="input-group">
+        <span>Initial Position:</span>
+        <input name="initial_position" type="number" value=0 disabled=false></input>
+      </div>
+      <div class="property-group">
+        <span>Target Position</span>
+        <input name="target_position" type="number" value=5100></input>
+      </div>
+      <div class="property-group">
+        <span>Muzzle Velocity</span>
+        <input name="muzzle_velocity" type="number" value=350 min=0></input>
+      </div>
+      <div class="property-group">
+        <span>Angle:</span>
+        <input name="initial_angle" type="number" value=45></input>
+        <button name="fire" id="fire">Fire</button>
+        <span>Animate</span>
+        <input type="checkbox" name="animate"></input>
+      </div>
+      <div class="property-group">
+        <span>Step size:</span>
+        <input name="step_size" type="number" value=0.1></input>
+      </div>
+      <div class="property-group">
+        <span>Start</span>
+        <input name="angle_start", type="number", min=0, max=90, value=10></input>
+        <span>Stop</span>
+        <input name="angle_stop", type="number", min=0, max=90, value=90></input>
+        <span>Angle Step</span>
+        <input name="angle_step" type="number" max="180" min="1" value=15></input>
+        <button name="fire_lots" id="fire-lots">Fire lots</button>
+      </div>
+    </div>
+
+    <div id="target-properties" class="property-group">
+    </div>
+    <canvas id="canvas"></canvas>
+    <div id="output-properties" class="property-group">
+      <button id="save-canvas">Save as png</button>
+    </div>
+    <div class="table-container">
+      <table id="last_fires">
+        <thead>
+          <tr>
+            <th>Angle</th>
+            <th>Range</th>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+    <div class="property-group">
+      <button id="plot_angles">Plot</button>
+    </div>
+    <canvas width=800 height=500 id="range_canvas"></canvas>
+    <div class="property-group">
+      <button id="save-angles-canvas">Save as png</button>
+    </div>
+    <script src="./index.js"></script>
+  </body>
+</html>
