@@ -1,74 +1,91 @@
 # MA377 Project 5
-import math
+from __future__ import division
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import numpy as np
 
-"""
-g = 9.81 m / s^2 # gravity
+g = 9.81
 
-v(t) # velocity of projectile at time t
-
-a = -4.75e-8
-b = 2.0e-4
-rho(y) = a y + b # air pressure
-
-air_friction = rho(y) abs( v(t) )^2
-
-x'' = -rho(y) (x')^2
-y'' = -rho(y) (y')^2 - g
+def hill_function(x):
+    return 1000*np.exp(-(4800-x)**2/1000000)
 
 
-h(x) = 1000 exp( 10e-6 (x - 4800)^2 ) # hill height over x
-
-x_o = 0 # initial position
-x_target = 5100 # target position
-
-v_o = 350 m/s # initial muzzle velocity
-
-1/2 m v_1^2 = 1/2 m v_0^2 + delta_kinetic + delta_potential 
-
-delta_potential = m g delta_h
-delta_kinetic = -drag_force
-
-"""
-
-# air pressure
-def rho(y):
-    a = -4.75e-8
-    b = 2.0e-4
-    return a*y + b
+def airdensity_function(y):
+    val = -4.75/10**8*y + 2.0/10**4
+    return val if val > 0 else 0
 
 
+def fire(initial_coordinates, angle, velocity, step_size):
+  angle_rad = 1/2*np.pi - angle*np.pi/180;
+  current_x_pos, current_y_pos = initial_coordinates
 
+  current_x_vel = np.sin(angle_rad)*velocity;
+  current_y_vel = np.cos(angle_rad)*velocity;
 
-cos = math.cos
-sin = math.sin
+  ret = [];
+  last_x = current_x_pos;
+  last_y = current_y_pos;
 
-g = 9.81  # m / s^2
-v_0 = 350 # m / s
+  while current_y_pos >= hill_function(current_x_pos):
+    current_x_pos += current_x_vel*step_size;
+    current_y_pos += current_y_vel*step_size;
 
-x_0, y_0 = (0, 0) # m 
-a = math.pi / 4   # rad
+    d_v_x = -airdensity_function(current_y_pos)*abs(current_x_vel)**2*step_size;
+    d_v_y = -(airdensity_function(current_y_pos)*abs(current_y_vel)**2 + g)*step_size;
 
-v_c = v_0
-x_c = x_0
-y_c = y_0
+    current_x_vel += d_v_x;
+    current_y_vel += d_v_y;
 
-v_y = v_c*cos(a)
-v_x = v_c*sin(a)
+    ret = [current_x_pos, current_y_pos, current_x_vel, current_y_vel];
 
-while y_c >= 0:
-    #print('x_c: {}'.format(x_c))
-    print('y_c: {}'.format(y_c))
+    last_x = current_x_pos;
+    last_y = current_y_pos;
 
-    x_c += v_x
-    y_c += v_y
+    yield ret;
 
-    rho_c = rho(y_c) # current air pressure
+start = (0, hill_function(0))
+targetx = 100
+target = (targetx, hill_function(targetx))
 
-    d_v_x = -rho_c*abs(v_x)**2
-    d_v_y = -rho_c*abs(v_y)**2 - g
+targets = np.arange(100, 9000, 100)
+angles = np.arange(0, 90, 0.1)
 
-    v_x += d_v_x
-    v_y += d_v_y
+def hit_range(t, hit):
+    return np.sqrt((t[0] - hit[0])**2 + (t[1] - hit[1])**2)
 
-# air friction equal to
-# rho (height) abs(velocity (time)) ^ 2
+targets, angles = np.meshgrid(targets, angles)
+
+def return_hit(angle, velocity):
+    gen = fire(start, angle, velocity, 0.1)
+    return [step for step in gen][-1][:2]
+
+def test(targetx, angle):
+    target = (targetx, hill_function(targetx))
+    hit = return_hit(angle, 350)
+    return hit_range(target, hit)
+
+test = np.vectorize(test)
+
+z = test(targets, angles)
+
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+#X = np.arange(-5, 5, 0.25)
+#Y = np.arange(-5, 5, 0.25)
+#X, Y = np.meshgrid(X, Y)
+#R = np.sqrt(X**2 + Y**2)
+#Z = np.sin(R)
+surf = ax.plot_surface(targets, angles, z, rstride=1, cstride=1, cmap=cm.coolwarm,
+                       linewidth=0, antialiased=False)
+#ax.set_zlim(-1.01, 1.01)
+
+#ax.zaxis.set_major_locator(LinearLocator(10))
+#ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+
+fig.colorbar(surf, shrink=0.5, aspect=5)
+
+fig.savefig('/home/samuel/Downloads/test.png')
