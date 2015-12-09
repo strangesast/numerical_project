@@ -4,7 +4,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -48,7 +48,7 @@ def fire(initial_coordinates, angle, velocity, step_size):
     yield ret;
 
 start = (0, hill_function(0))
-targetx = 100
+targetx = 5100
 target = (targetx, hill_function(targetx))
 
 targets = np.arange(100, 9000, 100)
@@ -57,7 +57,6 @@ angles = np.arange(0, 90, 0.1)
 def hit_range(t, hit):
     return np.sqrt((t[0] - hit[0])**2 + (t[1] - hit[1])**2)
 
-targets, angles = np.meshgrid(targets, angles)
 
 def return_hit(angle, velocity):
     gen = fire(start, angle, velocity, 0.1)
@@ -70,22 +69,62 @@ def test(targetx, angle):
 
 test = np.vectorize(test)
 
-z = test(targets, angles)
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-#X = np.arange(-5, 5, 0.25)
-#Y = np.arange(-5, 5, 0.25)
-#X, Y = np.meshgrid(X, Y)
-#R = np.sqrt(X**2 + Y**2)
-#Z = np.sin(R)
-surf = ax.plot_surface(targets, angles, z, rstride=1, cstride=1, cmap=cm.coolwarm,
-                       linewidth=0, antialiased=False)
-#ax.set_zlim(-1.01, 1.01)
+def plot_ranges():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    
+    ranges = np.zeros(angles.shape)
+    for i, angle in enumerate(angles):
+        hit = return_hit(angle, 350)
+        ranges[i] = hit_range(target, hit)
+    
+    ax.plot(angles, ranges)
+    ax.set_ylabel('Range (m)')
+    ax.set_xlabel(r'Angle $\alpha$ ($^\circ$)')
+    ax.set_title(r'Range within 5100m over 0$^\circ$ < $\alpha$ < 90$^\circ$')
+    
+    root1, root2 = list(np.sort(ranges)[:2])
+    rangeslist = list(ranges)
+    
+    root1y = angles[rangeslist.index(root1)]
+    root2y = angles[rangeslist.index(root2)]
+    
+    for xi, yi in [(root1y, root1), (root2y, root2)]:
+        ax.annotate(r'root: ({}$^\circ$, {})'.format(round(xi, 2), round(0)), xy=(xi, yi), xytext=(xi, yi+3000),
+            arrowprops=dict(facecolor='black', shrink=0.05)
+            )
+    
+    
+    fig.savefig('/home/samuel/Downloads/roots.png')
+    #plt.show()
 
-#ax.zaxis.set_major_locator(LinearLocator(10))
-#ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+def plot_surface():
+    targets = np.arange(100, 6000, 100)
+    angles = np.arange(0, 90, 1)
+    targets, angles = np.meshgrid(targets, angles)
+    z = test(targets, angles)
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    #X = np.arange(-5, 5, 0.25)
+    #Y = np.arange(-5, 5, 0.25)
+    #X, Y = np.meshgrid(X, Y)
+    #R = np.sqrt(X**2 + Y**2)
+    #Z = np.sin(R)
+    surf = ax.plot_surface(targets, angles, z, rstride=1, cstride=1, cmap=cm.coolwarm,
+                           linewidth=0, antialiased=False)
+    #ax.set_zlim(-1.01, 1.01)
+    
+    #ax.zaxis.set_major_locator(LinearLocator(10))
+    #ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+    
+    ax.set_xlabel('Target Location (m)')
+    ax.set_ylabel(r'Angle ($^\circ$)')
+    ax.set_zlabel('Range (m)')
+    ax.set_title('Projectile Range Surface Plot')
+    fig.colorbar(surf, shrink=0.5, aspect=5)
+    
+    fig.savefig('/home/samuel/Downloads/test.png')
+    plt.show()
 
-fig.colorbar(surf, shrink=0.5, aspect=5)
-
-fig.savefig('/home/samuel/Downloads/test.png')
+plot_surface()
