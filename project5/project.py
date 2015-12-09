@@ -59,11 +59,22 @@ def hit_range(t, hit):
 
 
 def return_hit(angle, velocity):
+    """ return coordinates of projectile collision with hill
+    """
+    # initialize shot with 'start' coordinates, muzzle 'angle', muzzle 'velocity', and step size
     gen = fire(start, angle, velocity, 0.1)
+    # calcualte position of projectile until break conditions are met
+    # (y_position < hill_height) and return the last position (where 
+    # it hit the dirt).  take only the first two values (x, y position)
     return [step for step in gen][-1][:2]
 
 def test(targetx, angle):
+    """ accept target x position and calculate is position on the hill
+    """
+    # initialize target at 'targetx' and corresponding location on hill
     target = (targetx, hill_function(targetx))
+
+    # use 'return_hit' function to determine hit coordinates with given angle and velocity
     hit = return_hit(angle, 350)
     return hit_range(target, hit)
 
