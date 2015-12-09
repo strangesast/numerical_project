@@ -10,11 +10,13 @@ var pressure_function_input_element = background_properties.querySelector('[name
 var hill_function_input_element = background_properties.querySelector('[name=hill_shape]');
 var canvas_width = canvas_properties.querySelector('[name=width]').value;
 var canvas_height = canvas_properties.querySelector('[name=height]').value;
+var wind_velocity_function_element = background_properties.querySelector('[name=wind_velocity_profile]');
 var plot_angles_button = document.getElementById('plot_angles');
 var angles_canvas = document.getElementById('range_canvas');
 
 var hill_function = null;
 var airdensity_function = null;
+var windvelocity_function = null;
 var initial_position = null;
 var target_position = null;
 // xmin, xmax, ymin, ymax
@@ -170,7 +172,6 @@ var initialize_positions = function() {
     return resolve();
   });
 };
-
 var fire = function* (initial_coordinates, angle, velocity, step_size, render) {
   var angle_rad = 1/2*Math.PI - angle*Math.PI / 180;
   var current_x_pos = initial_coordinates[0];
@@ -183,7 +184,12 @@ var fire = function* (initial_coordinates, angle, velocity, step_size, render) {
   var last_y = current_y_pos;
 
   while (current_y_pos >= hill_function(current_x_pos) && (current_y_pos < viewport[3] || true) && current_x_pos > viewport[0] && current_x_pos < viewport[1]) {
-    current_x_pos += current_x_vel*step_size;
+    if(windvelocity_function !== null) {
+      windvelocity = windvelocity_function(current_y_pos);
+    } else {
+      windvelocity = 0;
+    }
+    current_x_pos += (current_x_vel+windvelocity)*step_size;
     current_y_pos += current_y_vel*step_size;
 
     d_v_x = -airdensity_function(current_y_pos)*Math.pow(Math.abs(current_x_vel), 2)*step_size;
@@ -244,6 +250,7 @@ var initialize_canvas = function(e) {
   viewport = [x_lower_bound, x_upper_bound, y_lower_bound, y_upper_bound];
 
   rendering_function = initialize_render_function(viewport);
+  windvelocity_function = get_function_from_input(wind_velocity_function_element);
 
 
   target_position = Number(init_properties.querySelector('[name=target_position]').value);
