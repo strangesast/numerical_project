@@ -425,18 +425,25 @@ plot_angles_event = function(e) {
   var x_step = 20;
   for(var k=0; k < Math.floor((angles_canvas.width - padding*2) / x_step); k++) {
     ctx.save();
-    ctx.translate(padding + k*x_step, angles_canvas.height - padding + 5);
+    ctx.translate(padding + k*x_step, angles_canvas.height-padding+5);
     ctx.rotate(-Math.PI/2);
-    ctx.fillText(Math.floor((k*x_step/(angles_canvas.width-padding*2)*(xmax-xmin)+xmin)*100)/100, 0, 0);
+    ctx.fillText(Math.round((k*x_step/(angles_canvas.width-padding*2)*(xmax-xmin)+xmin)), 0, 0);
     ctx.beginPath();
     ctx.moveTo(0, 0);
-    ctx.lineTo(angles_canvas.width, 0);
+    ctx.lineTo(angles_canvas.height-2*padding+5, 0);
     ctx.stroke();
     ctx.restore();
   }
   for(var l=0; l < Math.floor((angles_canvas.height - padding*2) / x_step); l++) {
-    ctx.fillText(Math.floor((l*x_step/(angles_canvas.height-2*padding)*(ymax-ymin)+ymin)*100)/100, angles_canvas.width, angles_canvas.height - (padding+l*x_step));
-
+    ctx.fillText(
+        Math.round((l*x_step/(angles_canvas.height-2*padding)*(ymax-ymin)+ymin)),
+        angles_canvas.width,
+        angles_canvas.height - (padding+l*x_step)
+        );
+    ctx.beginPath();
+    ctx.moveTo(angles_canvas.width-padding, angles_canvas.height - (padding+l*x_step));
+    ctx.lineTo(padding, angles_canvas.height - (padding+l*x_step));
+    ctx.stroke();
   }
 
 };
